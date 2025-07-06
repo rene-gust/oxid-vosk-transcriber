@@ -12,8 +12,14 @@ public class TranscriptionRecognizerResultHandler {
 
     private String lastPartialResult = "";
 
+    private TranscriptionListener listener;
+
     public TranscriptionRecognizerResultHandler() {
         this.objectMapper = new ObjectMapper();
+    }
+
+    public void setTranscriptionListener(TranscriptionListener listener) {
+        this.listener = listener;
     }
 
     public void handleFinalResult(String jsonResult) {
@@ -28,6 +34,10 @@ public class TranscriptionRecognizerResultHandler {
 
                 // Add to complete transcription
                 currentTranscription.append(text).append(" ");
+
+                if (listener != null) {
+                    listener.onTranscription(text);
+                }
 
                 // Clear partial result
                 lastPartialResult = "";

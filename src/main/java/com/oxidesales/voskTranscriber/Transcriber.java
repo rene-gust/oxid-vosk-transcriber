@@ -34,7 +34,7 @@ public class Transcriber {
     private final AtomicBoolean isRecording = new AtomicBoolean(false);
     private final ExecutorService executorService;
 
-    private TranscriptionRecognizerResultHandler transcriptionRecognizerResultHandler;
+    private final TranscriptionRecognizerResultHandler transcriptionRecognizerResultHandler;
 
     public Transcriber(String modelPath) {
         try {
@@ -47,6 +47,7 @@ public class Transcriber {
                 throw new RuntimeException("Vosk model directory not found: " + modelPath);
             }
 
+            this.transcriptionRecognizerResultHandler = new TranscriptionRecognizerResultHandler();
 
             // Load Vosk model
             this.voskModel = new Model(modelPath);
@@ -99,7 +100,6 @@ public class Transcriber {
 
             isRecording.set(true);
 
-            this.transcriptionRecognizerResultHandler = new TranscriptionRecognizerResultHandler();
             MicrophoneStreamProcessor microphoneStreamProcessor = new MicrophoneStreamProcessor(
                     this.recognizer,
                     this.transcriptionRecognizerResultHandler,
@@ -157,7 +157,9 @@ public class Transcriber {
 
         System.out.println("\n📋 Complete transcription:");
         System.out.println("----------------------------------------");
-        System.out.println(transcriptionRecognizerResultHandler.getCompleteTranscription());
+        if (transcriptionRecognizerResultHandler != null) {
+            System.out.println(transcriptionRecognizerResultHandler.getCompleteTranscription());
+        }
         System.out.println("----------------------------------------");
         System.out.println("✅ Transcription stopped");
     }
@@ -212,6 +214,10 @@ public class Transcriber {
         } else {
             System.out.println("❌ Audio format not supported");
         }
+    }
+
+    public void setTranscriptionListener(TranscriptionListener listener) {
+        this.transcriptionRecognizerResultHandler.setTranscriptionListener(listener);
     }
 }
 
